@@ -14,7 +14,7 @@
 ## Установка
 
 1. Установите расширение [Tampermonkey](https://www.tampermonkey.net/) для вашего браузера
-2. Нажмите [здесь](Inject%20Custom%20Styles%20(Immediate%20and%20After%20Load)-1.0.user.js) для установки скрипта
+2. Нажмите [здесь](https://github.com/DaniilL12321/ym_css/raw/refs/heads/main/Inject%20Custom%20Styles%20(Immediate%20and%20After%20Load)-1.0.user.js) для установки скрипта
 3. Подтвердите установку в открывшемся окне Tampermonkey
 
 ## Использование
