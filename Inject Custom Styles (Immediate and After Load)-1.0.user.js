@@ -36,7 +36,6 @@
 
         body, #root, html {
             background-color: var(--clr-bg-gray-1) !important;
-            color: var(--clr-el-gray-000) !important;
         }
 
         .app {
@@ -44,12 +43,14 @@
         }
 
         button {
+            border-radius: var(--button-border-radius);
             background-color: var(--clr-bg-gray-3) !important;
             color: var(--clr-el-gray-000) !important;
             border: 1px solid var(--clr-bg-gray-00) !important;
         }
 
         button:hover {
+            border-radius: var(--button-border-radius);
             background-color: var(--clr-bg-gray-200) !important;
         }
 
@@ -133,6 +134,20 @@
             color: white !important;
         }
 
+        .visitor-comment__text {
+            color: white !important;
+        }
+
+        .visitor-visit-info__detail-value {
+            color: #ededed99 !important;
+        }
+
+        .visitor-visit-info__details-holder {
+            -webkit-box-shadow: inset 0 0 10px rgba(227, 227, 227, .0);
+            box-shadow: inset 0 0 10px rgb(67 67 67 / 0%);
+            border: 1px solid #fbc02d;
+        }
+
         .table_report_visitors .table__th {
             border: 1px solid #ffffff !important;
             background: #121212 !important;
@@ -144,6 +159,34 @@
 
         .report-page__report-headline {
             color: white !important;
+        }
+
+        .radio-button__label_disabled .radio-button__radio-container {
+            color: white !important;
+        }
+
+        .button_view_transparent-shade .button__shape {
+            color: white !important;
+        }
+
+        .text-cell__subtitle {
+            color: white !important;
+        }
+
+        .widget-layout-header-common__subtitle {
+            color: #ededed99 !important;
+        }
+
+        .chart-legend-table-row-common_gray .chart-legend-table-row-common__cell {
+            color: #ededed99 !important;
+        }
+
+        .copyright {
+            color: #ededed99 !important;
+        }
+
+        .lang-select__item-text {
+            color: #ededed99 !important;
         }
     `;
 
