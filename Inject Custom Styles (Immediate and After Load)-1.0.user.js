@@ -1,15 +1,18 @@
 // ==UserScript==
 // @name         Inject Custom Styles for Yandex Metrika
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Добавляет стили для темной темы при загрузке страницы и после полной загрузки на Яндекс Метрику
 // @author       DaniilL12321
 // @match        https://metrika.yandex.ru/*
 // @grant        GM_addStyle
+// @run-at       document-start
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    const STORAGE_KEY = 'yandex-metrika-dark-theme';
 
     const darkThemeStyles = `
         :root {
@@ -195,11 +198,12 @@
         let styleTag = document.getElementById(styleTagId);
 
         if (!styleTag) {
+            GM_addStyle(darkThemeStyles);
             styleTag = document.createElement('style');
             styleTag.id = styleTagId;
             styleTag.type = 'text/css';
             styleTag.textContent = darkThemeStyles;
-            document.documentElement.appendChild(styleTag);
+            (document.head || document.documentElement).appendChild(styleTag);
         }
     }
 
@@ -210,30 +214,43 @@
         }
     }
 
-    function toggleTheme() {
-        const isDarkTheme = document.body.classList.contains('dark-theme');
-        const toggleCircle = document.getElementById('theme-toggle-circle');
+    function isDarkThemeEnabled() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved !== null) {
+            return saved === 'true';
+        }
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
 
-        if (isDarkTheme) {
+    function toggleTheme() {
+        const isDark = isDarkThemeEnabled();
+        const toggleCircle = document.getElementById('theme-toggle-circle');
+        const toggleSwitch = document.getElementById('theme-toggle-switch');
+
+        if (isDark) {
+            localStorage.setItem(STORAGE_KEY, 'false');
             document.body.classList.remove('dark-theme');
             removeDarkThemeStyles();
-            toggleCircle.style.transform = 'translateX(20px) translateY(-50%)';
+            if (toggleCircle) toggleCircle.style.transform = 'translateX(20px) translateY(-50%)';
+            if (toggleSwitch) toggleSwitch.style.backgroundColor = '#ccc';
         } else {
+            localStorage.setItem(STORAGE_KEY, 'true');
             document.body.classList.add('dark-theme');
             injectDarkThemeStyles();
-            toggleCircle.style.transform = 'translateY(-50%)';
+            if (toggleCircle) toggleCircle.style.transform = 'translateY(-50%)';
+            if (toggleSwitch) toggleSwitch.style.backgroundColor = '#4CAF50';
         }
     }
 
     function createToggleSwitch() {
         const toggleSwitch = document.createElement('div');
+        toggleSwitch.id = 'theme-toggle-switch';
         toggleSwitch.style.position = 'fixed';
         toggleSwitch.style.left = '10px';
         toggleSwitch.style.bottom = '50px';
         toggleSwitch.style.zIndex = '9999';
         toggleSwitch.style.width = '50px';
         toggleSwitch.style.height = '30px';
-        toggleSwitch.style.backgroundColor = '#ccc';
         toggleSwitch.style.borderRadius = '20px';
         toggleSwitch.style.cursor = 'pointer';
         toggleSwitch.style.transition = 'background-color 0.3s';
@@ -247,24 +264,68 @@
         toggleCircle.style.position = 'absolute';
         toggleCircle.style.top = '50%';
         toggleCircle.style.left = '10%';
-        toggleCircle.style.transform = 'translateY(-50%)';
         toggleCircle.style.transition = 'transform 0.3s';
 
+        const isDark = isDarkThemeEnabled();
+        if (isDark) {
+            toggleSwitch.style.backgroundColor = '#4CAF50';
+            toggleCircle.style.transform = 'translateY(-50%)';
+        } else {
+            toggleSwitch.style.backgroundColor = '#ccc';
+            toggleCircle.style.transform = 'translateX(20px) translateY(-50%)';
+        }
+
         toggleSwitch.appendChild(toggleCircle);
-
         toggleSwitch.addEventListener('click', toggleTheme);
-
         document.body.appendChild(toggleSwitch);
     }
 
-    window.onload = function() {
-        const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (prefersDarkMode) {
+    if (isDarkThemeEnabled()) {
+        injectDarkThemeStyles();
+    }
+
+    function applyThemeToBody() {
+        if (isDarkThemeEnabled()) {
             document.body.classList.add('dark-theme');
             injectDarkThemeStyles();
         }
+    }
 
-        createToggleSwitch();
-    };
+    if (document.body) {
+        applyThemeToBody();
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        applyThemeToBody();
+        if (!document.getElementById('theme-toggle-switch')) {
+            createToggleSwitch();
+        }
+    });
+
+    window.addEventListener('load', function() {
+        applyThemeToBody();
+        if (!document.getElementById('theme-toggle-switch')) {
+            createToggleSwitch();
+        }
+    });
+
+    const observer = new MutationObserver(function() {
+        const styleTag = document.getElementById('dark-theme-styles');
+        if (isDarkThemeEnabled() && !styleTag) {
+            injectDarkThemeStyles();
+        }
+
+        const toggleSwitch = document.getElementById('theme-toggle-switch');
+        if (document.body && !toggleSwitch) {
+            createToggleSwitch();
+        }
+    });
+
+    if (document.documentElement) {
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    }
 
 })();
